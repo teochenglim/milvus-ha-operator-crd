@@ -129,25 +129,18 @@ uv run test_milvus.py
 ## Teardown
 
 ```bash
-# Delete Milvus cluster (operator removes components + etcd)
-kubectl delete milvus milvus
+# 1. Delete Milvus cluster CR (operator removes milvus components)
+kubectl delete -f milvus-cluster.yaml
 
-# Delete remaining resources
-kubectl delete -f k8s/milvus-attu-deployment.yaml
-kubectl delete -f k8s/milvus-rustfs-statefulset.yaml
-kubectl delete -f k8s/milvus-rustfs-secret.yaml
+# 2. Delete etcd (operator deploys it via helm with Retain policy, so it survives CR deletion)
+kubectl delete statefulset milvus-etcd
+kubectl delete svc milvus-etcd milvus-etcd-headless
+kubectl delete secret -l name=milvus-etcd,owner=helm
+kubectl delete pvc data-milvus-etcd-0 data-milvus-etcd-1 data-milvus-etcd-2
 
-# Delete operator
-kubectl delete -f k8s/milvus-operator-deployment.yaml
-kubectl delete -f k8s/milvus-operator-service.yaml
-kubectl delete -f k8s/milvus-operator-rolebinding.yaml
-kubectl delete -f k8s/milvus-operator-role.yaml
-kubectl delete -f k8s/milvus-operator-serviceaccount.yaml
-kubectl delete -f k8s/milvus-operator-crd.yaml
-
-# Clean up PVCs
-kubectl delete pvc -l app=rustfs
-kubectl delete pvc -l app.kubernetes.io/instance=milvus
+# 3. Delete all k8s/ resources (operator, rustfs, attu) and rustfs PVC
+kubectl delete -f k8s/
+kubectl delete pvc data-rustfs-0
 ```
 
 ## Notes
