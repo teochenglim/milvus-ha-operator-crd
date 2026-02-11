@@ -2,6 +2,8 @@
 
 Milvus vector database cluster deployment on Kubernetes using the Milvus Operator, with RustFS as S3-compatible object storage and Woodpecker as the message stream.
 
+https://milvus.io/docs/install_cluster-milvusoperator.md?tab=kubectl
+
 ## Architecture
 
 ```
