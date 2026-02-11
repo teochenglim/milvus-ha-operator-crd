@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: milvus-attu
+  labels:
+    app: milvus-attu
+spec:
+  ports:
+  - port: 3000
+    name: http
+    targetPort: 3000
+  selector:
+    app: milvus-attu
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: milvus-attu
+  labels:
+    app: milvus-attu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: milvus-attu
+  template:
+    metadata:
+      labels:
+        app: milvus-attu
+    spec:
+      containers:
+      - name: attu
+        image: zilliz/attu:v2.6
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: MILVUS_URL
+          value: "milvus-milvus.default:19530"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 30

@@ -1,0 +1,81 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    helm.sh/chart: milvus-operator-1.3.5
+    app.kubernetes.io/name: milvus-operator
+    app.kubernetes.io/instance: milvus-operator
+    app.kubernetes.io/version: "1.3.5"
+    app.kubernetes.io/managed-by: Helm
+  name: "milvus-operator"
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: milvus-operator
+      app.kubernetes.io/instance: milvus-operator
+  template:
+    metadata:
+      annotations:
+        {}
+      labels:
+        app.kubernetes.io/name: milvus-operator
+        app.kubernetes.io/instance: milvus-operator
+    spec:
+      affinity:
+        {}
+      containers:
+      - args:
+        - -namespace
+        - "default"
+        - -name
+        - "milvus-operator"
+        - -watch-namespace
+        - "default"
+        - --health-probe-bind-address=:8081
+        - --metrics-bind-address=:8080
+        - --leader-elect
+        command:
+        - /manager
+        image: 'milvusdb/milvus-operator:v1.3.5'
+        imagePullPolicy: "IfNotPresent"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        name: manager
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP
+        - containerPort: 8080
+          name: metrics
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+      imagePullSecrets:
+        []
+      nodeSelector:
+        {}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+      serviceAccountName: "milvus-operator"
+      terminationGracePeriodSeconds: 10
+      tolerations:
+        []

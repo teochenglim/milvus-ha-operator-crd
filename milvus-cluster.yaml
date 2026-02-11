@@ -1,0 +1,23 @@
+# This is a sample to deploy a milvus cluster with woodpecker message stream.
+apiVersion: milvus.io/v1beta1
+kind: Milvus
+metadata:
+  name: milvus
+  labels:
+    app: milvus
+spec:
+  mode: cluster
+  components: 
+    image: milvusdb/milvus:v2.6.0
+  config: {}
+  dependencies:
+    msgStreamType: woodpecker
+    storage:
+      external: true
+      type: S3
+      endpoint: rustfs:9000
+      secretRef: rustfs-credentials
+      inCluster:
+        deletionPolicy: Delete
+        values:
+          enabled: false
