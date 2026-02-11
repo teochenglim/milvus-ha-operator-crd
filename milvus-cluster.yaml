@@ -9,7 +9,10 @@ spec:
   mode: cluster
   components: 
     image: milvusdb/milvus:v2.6.0
-  config: {}
+  config:
+    minio:
+      bucketName: milvus
+      autoCreateBucket: true
   dependencies:
     msgStreamType: woodpecker
     storage:
